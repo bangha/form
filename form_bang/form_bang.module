@@ -1,0 +1,248 @@
+<?php
+function form_bang_menu() {
+  $items['form'] = array(
+    'title' => 'Sign up',
+    'description' => '',
+     'page callback' => 'drupal_get_form',
+    'page arguments' => array('form_bang_form'),
+    'access callback' => TRUE,
+  );
+  return $items;
+}
+function form_bang_form($form, &$form_state){
+//fieldset
+//	$form['name'] = array(
+  //  '#type' => 'fieldset',
+ //   '#title' => t('Name'),
+ // );
+//form textfield first name 
+//$form['name']['first'] = array(
+   // '#type' => 'textfield',
+  //  '#title' => t('First name'),
+//	'#validate' => 'form_bang_form_validate',
+ //);
+// $form['first'] = array(
+//    '#type' => 'textfield',
+//     '#required' => TRUE,
+//   '#title' => t('First name'),
+//	'#validate' => 'form_bang_form_validate',
+// );
+//form  textfield 
+//$form['name']['last'] = array(
+ //   '#type' => 'textfield',
+//    '#title' => t('Last name'),
+//	'#validate' => 'form_bang_form_validate',
+ // );
+
+//form machine
+//$form['id_user'] = array(
+//  '#type' => 'machine_name',
+//   '#default_value' => '',
+// '#maxlength' => 21,
+//   '#title' => t('Username'),
+//    '#machine_name' => array(
+//              'exists' => 'test',
+//               'source' => array('first'),
+//              'label' => t('URL path'),
+//              'replace_pattern' => '[^a-z0-9-]+',
+//              'replace' => '-',)
+//   );
+
+//form pass
+
+//form pass confirm
+//$form['pass'] = array(
+//  '#type' => 'password_confirm',
+//  '#size' => 25,
+//);
+//form description
+//$form['description'] = array(
+  //  '#type' => 'text_format',
+  //  '#title' => t('About you'),
+  //  '#default_value'=> 'How old are you?',
+ //  '#weight' => 0,
+ // );
+//form checkboxes  
+/*$form['question'] = array(
+		  '#type' => 'checkboxes',
+		  '#options' => drupal_map_assoc(array(t('Messi'), t('ronaldo'))),
+		  '#title' => t('Ai la cau thu hay nhat the gioi?'),
+	
+  );
+ //checkbox
+$form['checkbox'] = array(
+					  '#type' => 'checkbox',
+					  '#title' => t('Bạn có chắc với các điều khoản'),
+  );*/
+ // form submit 
+//$form['images'] = array(
+//  '#title' => t('Image'),
+//  '#type' => 'file',
+//  '#description' => t(''),
+// //'#upload_location' => 'public://image_example_images/',
+//);  
+
+
+// '#default_value' => variable_get('image_example_image_fid', ''),
+
+
+  // Build the sortable table header.
+  $header = array(
+    'title' => array('data' => t('Title')),
+    'type' => array('data' => t('Type'),),
+    'author' => t('Author'),
+    'status' => array('data' => t('Status'),),
+    'changed' => array('data' => t('Updated'), 'sort' => 'desc')
+  );
+$query = db_select('node', 'n');
+  //Get the node data.
+  $nids = $query
+    ->fields('n',array('nid'))
+    ->execute()
+    ->fetchCol();
+  $nodes = node_load_multiple($nids);
+  $value = array();
+  foreach ($nodes as $node) {
+    $value[$node->nid] = array(
+      'title' => array(
+        'data' => array(
+          '#type' => 'link',
+          '#title' => $node->title,
+          '#href' => 'node/' . $node->nid,
+          '#suffix' => ' ' . theme('mark', array('type' => node_mark($node->nid, $node->changed))),
+        ),
+      ),
+      'type' => check_plain(node_type_get_name($node)),
+      'author' => theme('username', array('account' => $node)),
+      'status' =>$node->status ? t('published') : t('not published'),
+      'changed' => format_date($node->changed, 'short'),
+    );
+  }
+  $form['nodes'] = array(
+      '#type' => 'tableselect',
+      '#header' => $header,
+     '#options' => $value,
+      '#empty' => t('No content available.'),
+    );
+ $form['ver_tab'] = array(
+    '#type' => 'vertical_tabs',
+  );
+   
+  //fieldset.
+$form['name'] = array(
+  '#type' => 'fieldset',
+  '#title' => t('Name'),
+   '#group' => 'ver_tab'
+  );
+  $form['name']['first'] = array(
+    '#type' => 'textfield',
+    '#title' => t('First name'),
+  );
+  $form['name']['last'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Last name'),
+  );
+
+
+   
+  
+$form['contact'] = array(
+  '#type' => 'fieldset',
+  '#title' => t('Contact settings'),
+  '#weight' => 5,
+  '#description' => t('About you'),
+  '#group' => 'ver_tab'
+);
+  $form['contact']['info'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Info'),
+  );
+   
+   
+
+//managed_file
+$form['managed_file'] = array(
+  '#title' => t('Image'),
+  '#type' => 'managed_file',
+  '#description' => t('Images upload'),
+  '#default_value' => variable_get('managed_file', ''),
+  '#upload_location' => 'public://managed_file/',
+);
+$form['actions']['submit'] = array(
+			'#type' => 'submit',
+			'#value' => t('Save'),
+  );
+
+
+  //form cancel
+			  $form['actions']['cancel'] = array(
+			  	'#type' => 'button',
+				'#value' => t('Cancel'),
+				'#markup' => l(t('Cancel'), 'foo/bar'),
+  );
+//$form['weight'] = array(
+//  '#type' => 'weight',
+//  '#title' => t('Weight'),
+  
+//  '#delta' => 10,
+//  '#description' => t('Optional. In the menu, the heavier items will sink and the lighter items will be positioned nearer the top.'),
+//);
+
+    //dsm($form);
+   return $form;
+   
+   
+   
+}
+//validate 
+function test($value){
+    if($value != 'bang')
+        return false;
+    return true;
+    
+}
+
+function form_bang_form_validate($form, &$form_state) {
+//  if ($form_state['values']['first'] != 'ha') {
+//	  form_set_error('first', t('Fisrt name error'));
+ // }
+ //  if ($form_state['values']['last'] != 'bang') {
+//	  form_set_error('last', t('Last name error'));
+ //  }
+  //    $validators = array('file_validate_is_image' => array());
+
+  // Check for a new uploaded logo.
+//                $file = file_save_upload('images', array(), 'public://');
+//                if (isset($file)) {
+//                  // File upload was attempted.
+//                  if ($file) {
+//                    // Put the temporary file in form_values so we can save it on submit.
+//                    $form_state['values']['images'] = $file;
+//                  }
+//                  else {
+//                    // File upload failed.
+//                    form_set_error('images', t('The logo could not be uploaded.'));
+//                  }
+//                }
+    
+} 
+//submit
+function form_bang_form_submit($form, &$form_state) { 
+ $file = file_load($form_state['values']['managed_file']);
+// Change status to permanent.
+$file->status = 1;
+file_save($file);
+dsm($file);
+// Save.
+
+// Record that the module (in this example, user module) is using the file.
+//file_usage_add($file, 'user', 'user', $account->uid); 
+//    $file = $form_state['values']['images'];
+//    //file_save($file);
+//    $file->status=1;
+//    dsm($file);
+
+	//drupal_set_message(t('The form has been submitted. name="@first @last", pass= "@pass", question ="@question"',
+	//   array('@first' => $form_state['values']['first'], '@last' => $form_state['values']['last'],'@pass' => $form_state['values']['pass'] 
+         //       )));  
+} 
